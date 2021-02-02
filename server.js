@@ -13,15 +13,8 @@ connectDB();
 
 // Import Routes
 const authRoute = require("./routes/auth");
-const ebooksRoute = require("./routes/ebooks");
 
-// const exercisesRouter = require('./routes/exercises');
-// const usersRouter = require('./routes/users');
-
-// app.use('/exercises', exercisesRouter);
-// app.use('/api/users', usersRouter);
 app.use("/api/user", authRoute);
-app.use("/api/ebooks",ebooksRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, ()=>{
