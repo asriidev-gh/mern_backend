@@ -23,11 +23,11 @@ const STATUS_CODE_FAILED = 0;
 router.post("/register", async (req, res) => {
   // Lets validate data before we create a user
   const { error } = registerValidation(req.body);
-  if (error) return res.status(200).json({code:STATUS_CODE_FAILED,msg:error.details[0].message});
+  if (error) return res.status(400).json({code:STATUS_CODE_FAILED,msg:error.details[0].message});
 
   //   Checking if the user is already in the database
   const emailExist = await User.findOne({ email: req.body.email });
-  if (emailExist) return res.status(200).json({code:STATUS_CODE_FAILED,msg:"Email already exists"});
+  if (emailExist) return res.status(400).json({code:STATUS_CODE_FAILED,msg:"Email already exists"});
 
   //   Hash passwords
   const salt = await bcrypt.genSalt(10);
@@ -59,7 +59,12 @@ router.post("/register", async (req, res) => {
     });
     await newCode.save();
 
-    const baseUrl = req.protocol + "://" + req.get("host");
+    let baseUrl = req.protocol + "://" + req.get("host");
+    
+    if(process.env.NODE_ENV=="production"){
+      baseUrl = baseUrl + "/production";
+    }
+    
     const data = {
         from: `${APP_NAME} <${EMAIL_USERNAME}>`,
         to: user.email,
@@ -81,7 +86,7 @@ router.post("/register", async (req, res) => {
       }
     });
   } catch (e) {
-    res.status(200).json({ code:STATUS_CODE_FAILED, error: e.message });
+    res.status(400).json({ code:STATUS_CODE_FAILED, error: e.message });
   }
 });
 
@@ -105,7 +110,7 @@ router.post("/login", async (req, res) => {
     if (!validPass) return res.status(400).json({code:STATUS_CODE_FAILED,msg:"Invalid Credentials"});
 
     //   Create and assign a token
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, {expiresIn: 3600});
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, {expiresIn: 36000000});
     // res.header("auth-token", token).send(token);
     res.status(200).json({
       code: STATUS_CODE_SUCCESS,

@@ -14,7 +14,10 @@ connectDB();
 // Import Routes
 const authRoute = require("./routes/auth");
 
+const quizRoute = require("./routes/quiz");
+
 app.use("/api/user", authRoute);
+app.use("/api/quiz", quizRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, ()=>{
